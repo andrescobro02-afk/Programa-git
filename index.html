@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>parKing - Panel General</title>
+    <!-- Fuentes modernas -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Archivo de estilos principal -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="layout">
+        <!-- Barra Lateral -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="img/logo.png" alt="parKing Logo" class="logo-img">
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                    <li><a href="#"><i class="fas fa-sign-in-alt"></i> Ingresar Vehículo</a></li>
+                    <li><a href="#"><i class="fas fa-sign-out-alt"></i> Registrar Salida</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="#" class="logout-btn"><i class="fas fa-sign-out-alt fa-flip-horizontal"></i> Cerrar Sesión</a>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <!-- Topbar (Cabecera Principal) -->
+            <header class="topbar">
+                <div class="topbar-title">
+                    <h1>Panel General</h1>
+                    <p class="date-time" id="datetimeDisplay">Fecha actualizando...</p>
+                </div>
+                <!-- Capacidad -->
+                <div class="topbar-capacity">
+                    <div class="capacity-badge">
+                        <i class="fas fa-parking"></i>
+                        <div class="capacity-text">
+                            <span class="cap-label">CAPACIDAD</span>
+                            <span class="cap-value" id="capacityValue">30 / 30</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tarjetas de Resumen (Estadísticas) -->
+            <section class="summary-cards">
+                <div class="card">
+                    <div class="card-icon bg-orange-light">
+                        <i class="fas fa-car-side color-orange"></i>
+                    </div>
+                    <div class="card-info">
+                        <p class="card-label">Total Vehículos</p>
+                        <h2 class="card-number" id="totalVehiculos">0</h2>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon bg-green-light">
+                        <i class="fas fa-money-bill-wave color-green"></i>
+                    </div>
+                    <div class="card-info">
+                        <p class="card-label">Ingresos Hoy</p>
+                        <h2 class="card-number" id="ingresosHoy">$ 0</h2>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mapa Visual del Parqueadero -->
+            <section class="parking-map-section">
+                <div class="map-header">
+                    <h2>Mapa del Parqueadero</h2>
+                    <div class="map-legend">
+                        <span class="legend-item"><span class="dot dot-libre"></span> Libre</span>
+                        <span class="legend-item"><span class="dot dot-ocupado"></span> Ocupado</span>
+                    </div>
+                </div>
+                
+                <div class="parking-grid" id="parkingGrid">
+                    <!-- Las celdas se generarán dinámicamente -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script Interactivo -->
+    <script src="js/app.js"></script>
+</body>
+</html>
