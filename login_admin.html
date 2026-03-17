@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>parKing - Login Administrador</title>
+    <!-- Fuentes modernas -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Archivo de estilos principal -->
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-body), #e2e8f0);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            margin-bottom: 2rem;
+        }
+
+        .login-logo img {
+            max-width: 150px;
+        }
+
+        .login-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .login-form {
+            text-align: left;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background: #1d4ed8;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .link-switch {
+            display: block;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .link-switch:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-logo">
+            <img src="img/logo.png" alt="parKing Logo">
+        </div>
+
+        <div class="login-title">Acceso Administrador</div>
+
+        <!-- Formulario Administrador -->
+        <div id="form-admin" class="login-form">
+            <div class="form-group">
+                <label for="adminUser">Usuario</label>
+                <input type="text" id="adminUser" class="form-control" placeholder="Ingrese usuario" value="admin">
+            </div>
+            <div class="form-group">
+                <label for="adminPass">Contraseña</label>
+                <input type="password" id="adminPass" class="form-control" placeholder="Ingrese contraseña" value="admin123">
+            </div>
+            <button class="btn-login" onclick="loginAdmin()"><i class="fas fa-sign-in-alt"></i> Ingresar al Dashboard</button>
+            <p id="error-admin" class="error-msg">Credenciales incorrectas.</p>
+        </div>
+
+        <a href="login_user.html" class="link-switch">Soy un cliente / Consultar vehículo</a>
+    </div>
+
+    <!-- Script de autenticación -->
+    <script>
+        // Limpiamos la sesión si entramos aquí
+        localStorage.removeItem('role');
+        
+        function loginAdmin() {
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+            const errorMsg = document.getElementById('error-admin');
+
+            if (user === 'admin' && pass === 'admin123') {
+                localStorage.setItem('role', 'admin');
+                window.location.href = 'index.html'; // Redirige al Dashboard
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+        
+        // Permitir enter para login
+        document.getElementById('adminPass').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loginAdmin();
+            }
+        });
+    </script>
+</body>
+</html>

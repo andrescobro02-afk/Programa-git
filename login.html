@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>parKing - Iniciar Sesión</title>
+    <!-- Fuentes modernas -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Archivo de estilos principal -->
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-body), #e2e8f0);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            margin-bottom: 2rem;
+        }
+
+        .login-logo img {
+            max-width: 150px;
+        }
+
+        .login-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            position: relative;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .login-tab.active {
+            color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+            border-bottom: 3px solid var(--primary-color);
+            margin-bottom: -2px;
+        }
+
+        .login-form {
+            display: none;
+            text-align: left;
+        }
+
+        .login-form.active {
+            display: block;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background: #1d4ed8;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-logo">
+            <img src="img/logo.png" alt="parKing Logo">
+        </div>
+
+        <div class="login-tabs">
+            <div id="tab-cliente" class="login-tab active" onclick="switchTab('cliente')">Cliente</div>
+            <div id="tab-admin" class="login-tab" onclick="switchTab('admin')">Administrador</div>
+        </div>
+
+        <!-- Formulario Cliente -->
+        <div id="form-cliente" class="login-form active">
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">Ingrese la placa de su vehículo para ver el tiempo transcurrido y tarifa.</p>
+            <div class="form-group">
+                <label for="placa">Placa del Vehículo</label>
+                <input type="text" id="placa" class="form-control" placeholder="Ej: ABC-123" style="text-transform: uppercase;">
+            </div>
+            <button class="btn-login" onclick="loginCliente()"><i class="fas fa-search"></i> Consultar Estado</button>
+            <p id="error-cliente" class="error-msg">Vehículo no registrado en este momento.</p>
+        </div>
+
+        <!-- Formulario Administrador -->
+        <div id="form-admin" class="login-form">
+            <div class="form-group">
+                <label for="adminUser">Usuario</label>
+                <input type="text" id="adminUser" class="form-control" placeholder="Ingrese usuario" value="admin">
+            </div>
+            <div class="form-group">
+                <label for="adminPass">Contraseña</label>
+                <input type="password" id="adminPass" class="form-control" placeholder="Ingrese contraseña" value="admin123">
+            </div>
+            <button class="btn-login" onclick="loginAdmin()"><i class="fas fa-sign-in-alt"></i> Ingresar al Dashboard</button>
+            <p id="error-admin" class="error-msg">Credenciales incorrectas.</p>
+            <p style="text-align:center; font-size:0.75rem; color:#9ca3af; margin-top:15px;">Pista: admin / admin123</p>
+        </div>
+    </div>
+
+    <!-- Script de autenticación -->
+    <script src="js/login.js"></script>
+</body>
+</html>
