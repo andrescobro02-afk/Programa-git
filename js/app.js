@@ -1,4 +1,4 @@
-// ===== APP DE PARQUEADERO INTELIGENTE (Dashboard Admin) =====
+﻿// ===== APP DE PARQUEADERO INTELIGENTE (Dashboard Admin) =====
 const grid = document.getElementById('parkingGrid');
 
 // Redirigir si no es admin
@@ -45,32 +45,24 @@ function openModal(texto, modo) {
     });
 }
 
-function initApp() {
+async function initApp() {
     // Definir la Fecha y Hora en el Topbar
     const datetimeObj = document.getElementById('datetimeDisplay');
     if(datetimeObj) {
         datetimeObj.textContent = formatearFechaHora();
-        // Actualizar cada minuto
         setInterval(() => {
             datetimeObj.textContent = formatearFechaHora();
         }, 60000);
     }
 
-    // Cargar celdas de localStorage o crear nuevas
-    const celdasStorage = localStorage.getItem('parKing_celdas');
-    if (celdasStorage) {
-        celdas = JSON.parse(celdasStorage);
-    } else {
-        // Crear 30 celdas vacías
-        for (let i = 1; i <= totalCeldas; i++) {
-            celdas.push({
-                numero: i,
-                ocupado: false,
-                placa: "",
-                horaIngreso: null
-            });
-        }
-        guardarCeldas();
+    try {
+        const response = await fetch('/api/parking');
+        if (!response.ok) throw new Error("Fallo API");
+        const data = await response.json();
+        celdas = data.celdas || [];
+        ingresosAcumulados = data.ingresosAcumulados || 0;
+    } catch(e) {
+        console.warn("Fallo conexión a la API Node.js. ¿Está corriendo el servidor?", e);
     }
     
     // Configurar el botón de cerrar sesión
@@ -81,12 +73,6 @@ function initApp() {
             localStorage.removeItem('role');
             window.location.href = 'login_admin.html';
         });
-    }
-    
-    // Si la app recarga pero tenía ingresos guaradados:
-    const ingresosGuardados = localStorage.getItem('parKing_ingresos');
-    if (ingresosGuardados) {
-        ingresosAcumulados = parseInt(ingresosGuardados);
     }
     
     renderGrid();
@@ -113,23 +99,46 @@ function renderGrid() {
             if (!celda.ocupado) {
                 const placa = await openModal(`Ingresar vehículo en la celda ${celda.numero}.\nPor favor ingrese la placa:`, 'ingreso');
                 if (placa && placa.trim().length > 0) {
-                    celdas[index].ocupado = true;
-                    celdas[index].placa = placa.trim().toUpperCase();
-                    celdas[index].horaIngreso = new Date().toISOString(); // Guardar hora de entrada exacta
-                    ingresosAcumulados += 5000; // Tarifa base
-                    guardarCeldas();
-                    renderGrid();
-                    actualizarOcupacion();
+                    try {
+                        const res = await fetch('/api/parking/ingreso', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ numero: celda.numero, placa: placa.trim() })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            celdas[index] = data.celda;
+                            renderGrid();
+                            actualizarOcupacion();
+                        }
+                    } catch(e) {
+                        alert("Error conectando con el servidor en la nube.");
+                    }
                 }
             } else {
                 const confirmar = await openModal(`¿Registrar la salida del vehículo con placa ${celda.placa} de la celda ${celda.numero}?`, 'salida');
                 if (confirmar) {
-                    celdas[index].ocupado = false;
-                    celdas[index].placa = '';
-                    celdas[index].horaIngreso = null;
-                    guardarCeldas();
-                    renderGrid();
-                    actualizarOcupacion();
+                    try {
+                        const res = await fetch('/api/parking/salida', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ numero: celda.numero })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            alert(`Checkout Exitoso\nVehiiculo: ${celda.placa}\nTiempo total: ${data.tiempoMinutos} minutos\nTotal a cobrar: $${data.tarifaCobrada}`);
+                            
+                            celdas[index].ocupado = false;
+                            celdas[index].placa = '';
+                            celdas[index].horaIngreso = null;
+                            ingresosAcumulados = data.ingresosTotales;
+                            
+                            renderGrid();
+                            actualizarOcupacion();
+                        }
+                    } catch(e) {
+                        alert("Error registrando la salida en el servidor.");
+                    }
                 }
             }
         });
@@ -155,12 +164,6 @@ function actualizarOcupacion() {
         }).format(ingresosAcumulados);
         ingresosHoyEl.textContent = formatoMoneda;
     }
-}
-
-// Función auxiliar para guardar en localStorage
-function guardarCeldas() {
-    localStorage.setItem('parKing_celdas', JSON.stringify(celdas));
-    localStorage.setItem('parKing_ingresos', ingresosAcumulados);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

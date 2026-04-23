@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -138,21 +138,21 @@
 
         <!-- Formulario Cliente -->
         <div id="form-cliente" class="login-form">
-            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">Ingrese la placa de su vehículo para ver el tiempo transcurrido y tarifa.</p>
+            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">Ingrese la placa de su vehÃ­culo para ver el tiempo transcurrido y tarifa.</p>
             <div class="form-group">
-                <label for="placa">Placa del Vehículo</label>
+                <label for="placa">Placa del VehÃ­culo</label>
                 <input type="text" id="placa" class="form-control" placeholder="Ej: ABC-123" style="text-transform: uppercase;">
             </div>
             <button class="btn-login" onclick="loginCliente()"><i class="fas fa-search"></i> Consultar Estado</button>
-            <p id="error-cliente" class="error-msg">Vehículo no registrado en este momento.</p>
+            <p id="error-cliente" class="error-msg">VehÃ­culo no registrado en este momento.</p>
         </div>
 
         <a href="login_admin.html" class="link-switch">Soy un Administrador</a>
     </div>
 
-    <!-- Script de autenticación -->
-    <script>
-        function loginCliente() {
+    <!-- Script de autenticaciÃ³n -->
+        <script>
+        async function loginCliente() {
             const placaIngresada = document.getElementById('placa').value.trim().toUpperCase();
             const errorMsg = document.getElementById('error-cliente');
             
@@ -164,22 +164,30 @@
                 return;
             }
 
-            // Buscar si el vehículo está en localStorage
-            let celdasStorage = localStorage.getItem('parKing_celdas');
-            if (celdasStorage) {
-                let celdas = JSON.parse(celdasStorage);
-                let vehiculoEncontrado = celdas.find(c => c.ocupado && c.placa === placaIngresada);
+            try {
+                const res = await fetch('/api/parking/cliente', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ placa: placaIngresada })
+                });
                 
-                if (vehiculoEncontrado) {
+                if (!res.ok) {
+                    errorMsg.textContent = 'Vehículo no registrado en este momento.';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+                
+                const data = await res.json();
+                if (data.success && data.vehiculo) {
                     localStorage.setItem('role', 'cliente');
                     localStorage.setItem('placaActual', placaIngresada);
-                    window.location.href = 'user_dashboard.html'; // Redirige al panel de usuario
+                    window.location.href = 'user_dashboard.html'; 
                 } else {
                     errorMsg.textContent = 'Vehículo no registrado en este momento.';
                     errorMsg.style.display = 'block';
                 }
-            } else {
-                errorMsg.textContent = 'Sistema no inicializado o vacío.';
+            } catch(e) {
+                errorMsg.textContent = 'Error de conexión con el servidor.';
                 errorMsg.style.display = 'block';
             }
         }
@@ -193,3 +201,4 @@
     </script>
 </body>
 </html>
+

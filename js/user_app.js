@@ -1,6 +1,6 @@
-// ===== LOGICA DEL DASHBOARD DE USUARIO =====
+﻿// ===== LOGICA DEL DASHBOARD DE USUARIO =====
 
-function initUserApp() {
+async function initUserApp() {
     // Validar si es un cliente real
     const role = localStorage.getItem('role');
     const placaActual = localStorage.getItem('placaActual');
@@ -10,38 +10,41 @@ function initUserApp() {
         return;
     }
 
-    // Traer datos del parqueadero
-    const celdasStorage = localStorage.getItem('parKing_celdas');
-    if (!celdasStorage) {
-        window.location.href = 'login_user.html';
-        return;
+    try {
+        const response = await fetch('/api/parking/cliente', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ placa: placaActual })
+        });
+        const data = await response.json();
+        
+        if (!data.success || !data.vehiculo) {
+            alert("Su vehículo ya no se encuentra registrado en el parqueadero.");
+            localStorage.removeItem('role');
+            localStorage.removeItem('placaActual');
+            window.location.href = 'login_user.html';
+            return;
+        }
+
+        const miVehiculo = data.vehiculo;
+
+        // Pintar Datos Iniciales
+        document.getElementById('u-placa').textContent = miVehiculo.placa;
+        document.getElementById('u-celda').textContent = `# ${miVehiculo.numero}`;
+        
+        const fechaIngreso = new Date(miVehiculo.horaIngreso);
+        document.getElementById('u-ingreso').textContent = fechaIngreso.toLocaleTimeString('es-CO', { 
+            hour: '2-digit', 
+            minute: '2-digit'
+        });
+
+        // Actualizar tiempo y tarifa cada segundo
+        actualizarCronometro(fechaIngreso);
+        setInterval(() => actualizarCronometro(fechaIngreso), 1000);
+        
+    } catch (e) {
+        alert("Error de red conectando al servidor.");
     }
-    
-    const celdas = JSON.parse(celdasStorage);
-    const miVehiculo = celdas.find(c => c.ocupado && c.placa === placaActual);
-
-    if (!miVehiculo) {
-        // Vehículo ya salió
-        alert("Su vehículo ya no se encuentra registrado en el parqueadero.");
-        localStorage.removeItem('role');
-        localStorage.removeItem('placaActual');
-        window.location.href = 'login_user.html';
-        return;
-    }
-
-    // Pintar Datos Iniciales
-    document.getElementById('u-placa').textContent = miVehiculo.placa;
-    document.getElementById('u-celda').textContent = `# ${miVehiculo.numero}`;
-    
-    const fechaIngreso = new Date(miVehiculo.horaIngreso);
-    document.getElementById('u-ingreso').textContent = fechaIngreso.toLocaleTimeString('es-CO', { 
-        hour: '2-digit', 
-        minute: '2-digit'
-    });
-
-    // Actualizar tiempo y tarifa cada segundo
-    actualizarCronometro(fechaIngreso);
-    setInterval(() => actualizarCronometro(fechaIngreso), 1000);
 }
 
 function actualizarCronometro(fechaIngreso) {
