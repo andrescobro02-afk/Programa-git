@@ -6,20 +6,15 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
-
-// Servir archivos estáticos de la carpeta actual
 app.use(express.static(path.join(__dirname)));
 
-// Simular una base de datos en JSON local
 const dataPath = path.join(__dirname, 'parking_data.json');
 
-// Inicializar data si no existe
 function loadData() {
     if (!fs.existsSync(dataPath)) {
-        const initialData = { celdas: [], ingresosAcumulados: 0 };
+        const initialData = { celdas: [], ingresosAcumulados: 0, historial: [] };
         for (let i = 1; i <= 30; i++) {
             initialData.celdas.push({
                 numero: i,
@@ -32,7 +27,9 @@ function loadData() {
         return initialData;
     }
     const raw = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!parsed.historial) parsed.historial = []; // Migración
+    return parsed;
 }
 
 function saveData(data) {
@@ -41,14 +38,10 @@ function saveData(data) {
 
 let db = loadData();
 
-// --- API Endpoints ---
-
-// Obtener todas las celdas y estado
 app.get('/api/parking', (req, res) => {
     res.json(db);
 });
 
-// Registrar ingreso
 app.post('/api/parking/ingreso', (req, res) => {
     const { numero, placa } = req.body;
     const celda = db.celdas.find(c => c.numero === numero);
@@ -64,7 +57,6 @@ app.post('/api/parking/ingreso', (req, res) => {
     }
 });
 
-// Registrar salida (checkout)
 app.post('/api/parking/salida', (req, res) => {
     const { numero } = req.body;
     const celda = db.celdas.find(c => c.numero === numero);
@@ -77,10 +69,15 @@ app.post('/api/parking/salida', (req, res) => {
         let tarifa = (minutosTotales + 1) * 100;
         if (tarifa < 500) tarifa = 500;
         
-        // Efectuar cobro
         db.ingresosAcumulados += tarifa;
         
-        // Liberar
+        db.historial.push({
+            fecha: ahora.toISOString(),
+            placa: celda.placa,
+            minutos: minutosTotales,
+            cobro: tarifa
+        });
+        
         celda.ocupado = false;
         celda.placa = '';
         celda.horaIngreso = null;
@@ -98,7 +95,6 @@ app.post('/api/parking/salida', (req, res) => {
     }
 });
 
-// Login y búsqueda de vehículo para cliente
 app.post('/api/parking/cliente', (req, res) => {
     const { placa } = req.body;
     const p = placa.toUpperCase();
@@ -111,5 +107,5 @@ app.post('/api/parking/cliente', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor parKing corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor parKing Backend v2 corriendo en http://localhost:${PORT}`);
 });
